@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -19,7 +20,7 @@ public class HTMLValidatorGUI extends JFrame {
     private static final Set<String> SINGLETON_TAGS = new HashSet<>(Arrays.asList(
         "meta", "base", "br", "col", "command", "embed", "hr", "img", "input", "link", "param", "source", "!DOCTYPE"
     ));
-    private static final Pattern TAG_PATTERN = Pattern.compile("<\\s*([^\\s>]+)[^>]*>");
+    private static final Pattern TAG_PATTERN = Pattern.compile("<\\s*([^\\s>/]+)([^>]*)>");
 
     public HTMLValidatorGUI() {
         setTitle("HTML Validator");
@@ -29,20 +30,33 @@ public class HTMLValidatorGUI extends JFrame {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         filePathField = new JTextField();
-        analyzeButton = new JButton("Analyze");
-        topPanel.add(new JLabel("File:"), BorderLayout.WEST);
+        analyzeButton = new JButton("Análise");
+
+        // Set preferred size for the analyze button
+        Dimension buttonSize = new Dimension(70, 30);
+        analyzeButton.setPreferredSize(buttonSize);
+        analyzeButton.setMaximumSize(buttonSize);
+        analyzeButton.setMinimumSize(buttonSize);
+        
+        // Add padding to the analyze button
+        analyzeButton.setBorder(new EmptyBorder(0, 0, 0, 15));
+
+        JLabel fileLabel = new JLabel("File:");
+        fileLabel.setBorder(new EmptyBorder(0, 5, 0, 0)); // Add padding to the left of the label
+
+        topPanel.add(fileLabel, BorderLayout.WEST);
         topPanel.add(filePathField, BorderLayout.CENTER);
         topPanel.add(analyzeButton, BorderLayout.EAST);
 
         resultArea = new JTextArea();
         resultArea.setEditable(false);
 
-        String[] columnNames = {"Tag", "Number of Occurrences"};
+        String[] columnNames = {"Tag", "Número de ocorrencias"};
         tableModel = new DefaultTableModel(columnNames, 0);
         tagsTable = new JTable(tableModel);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.add(new JLabel("Tags and their occurrences:"), BorderLayout.NORTH);
+        bottomPanel.add(new JLabel("Tags e suas ocorrencias:"), BorderLayout.NORTH);
         bottomPanel.add(new JScrollPane(tagsTable), BorderLayout.CENTER);
 
         add(topPanel, BorderLayout.NORTH);
@@ -78,13 +92,13 @@ public class HTMLValidatorGUI extends JFrame {
             Matcher matcher = TAG_PATTERN.matcher(line);
 
             while (matcher.find()) {
-                String tag = matcher.group(1).split("\\s+")[0].toLowerCase();
+                String tag = matcher.group(1).toLowerCase();
 
                 if (SINGLETON_TAGS.contains(tag)) {
                     tagFrequency.put(tag, tagFrequency.getOrDefault(tag, 0) + 1);
                 } else if (tag.startsWith("/")) {
                     if (stack.isEmpty() || !stack.peek().equals(tag.substring(1))) {
-                        resultArea.setText("Error at line " + lineNumber + ": expected </" + (stack.isEmpty() ? "none" : stack.peek()) + ">, found </" + tag.substring(1) + ">");
+                        resultArea.setText("Erro na linha " + lineNumber + ": esperado </" + (stack.isEmpty() ? "none" : stack.peek()) + ">, found </" + tag.substring(1) + ">");
                         return;
                     }
                     stack.pop();
@@ -96,11 +110,11 @@ public class HTMLValidatorGUI extends JFrame {
         }
 
         if (!stack.isEmpty()) {
-            resultArea.setText("Missing end tags for: " + stack);
+            resultArea.setText("Tags faltando para: " + stack);
             return;
         }
 
-        resultArea.setText("The file is well formatted.");
+        resultArea.setText("HTML bem formatado");
         updateTable(tagFrequency);
     }
 
