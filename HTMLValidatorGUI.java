@@ -23,7 +23,7 @@ public class HTMLValidatorGUI extends JFrame {
     private static final Pattern TAG_PATTERN = Pattern.compile("<\\s*([^\\s>/]+)([^>]*)>");
 
     public HTMLValidatorGUI() {
-        setTitle("HTML Validator");
+        setTitle("Valida HTML");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -41,7 +41,7 @@ public class HTMLValidatorGUI extends JFrame {
         // Add padding to the analyze button
         analyzeButton.setBorder(new EmptyBorder(0, 0, 0, 15));
 
-        JLabel fileLabel = new JLabel("File:");
+        JLabel fileLabel = new JLabel("Arquivo:");
         fileLabel.setBorder(new EmptyBorder(0, 5, 0, 0)); // Add padding to the left of the label
 
         topPanel.add(fileLabel, BorderLayout.WEST);
@@ -77,7 +77,7 @@ public class HTMLValidatorGUI extends JFrame {
             String htmlContent = new String(Files.readAllBytes(Paths.get(filePath)));
             validateHTML(htmlContent);
         } catch (IOException e) {
-            resultArea.setText("Error reading file: " + e.getMessage());
+            resultArea.setText("Erro na leitura do arquivo: " + e.getMessage());
         }
     }
 
