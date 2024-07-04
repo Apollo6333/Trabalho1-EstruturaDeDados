@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Map;
 
 public class HtmlValidatorGUI extends JFrame {
     private JTextField filePathField;
@@ -68,12 +67,13 @@ public class HtmlValidatorGUI extends JFrame {
         }
     }
 
-    private void updateSemanticTagTable(Map<String, Integer> semanticTagCount) {
+    private void updateSemanticTagTable(int[] semanticTagCount) {
         DefaultTableModel model = (DefaultTableModel) semanticTagTable.getModel();
-        model.setRowCount(0); // Clear existing rows
+        model.setRowCount(0); // Limpa as linhas existentes
 
-        for (Map.Entry<String, Integer> entry : semanticTagCount.entrySet()) {
-            model.addRow(new Object[]{entry.getKey(), entry.getValue()});
+        // Adiciona cada tag semântica à tabela
+        for (int i = 0; i < HtmlValidator.SEMANTIC_TAGS.length; i++) {
+            model.addRow(new Object[]{HtmlValidator.SEMANTIC_TAGS[i], semanticTagCount[i]});
         }
     }
 

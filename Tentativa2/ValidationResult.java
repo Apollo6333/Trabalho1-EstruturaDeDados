@@ -1,16 +1,14 @@
 package Tentativa2;
 
-import java.util.Map;
-
 public class ValidationResult {
     private final boolean valid;
     private final String message;
-    private final Map<String, Integer> semanticTagCount;
+    private final int[] semanticTagCount;
 
-    public ValidationResult(boolean valid, String message, Map<String, Integer> semanticTagCount) {
+    public ValidationResult(boolean valid, String message, int[] semanticTagCount) {
         this.valid = valid;
         this.message = message;
-        this.semanticTagCount = semanticTagCount;
+        this.semanticTagCount = semanticTagCount.clone(); // Clona o array para evitar modificações externas
     }
 
     public boolean isValid() {
@@ -21,7 +19,7 @@ public class ValidationResult {
         return message;
     }
 
-    public Map<String, Integer> getSemanticTagCount() {
-        return semanticTagCount;
+    public int[] getSemanticTagCount() {
+        return semanticTagCount.clone(); // Clona o array para evitar modificações externas
     }
 }
