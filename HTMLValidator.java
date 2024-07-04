@@ -20,7 +20,7 @@ public class HTMLValidator {
         for (String requiredTag : REQUIRED_TAGS_IN_ORDER) {
             int tagIndex = html.indexOf(requiredTag, currentTagIndex);
             if (tagIndex == -1) {
-                return false; // Tag not found
+                return false;
             }
             currentTagIndex = tagIndex + requiredTag.length();
 
@@ -30,15 +30,13 @@ public class HTMLValidator {
                 insideBody = false;
             }
 
-            // Check for semantic tags outside of the body
-
             //PRECISA COLOCAR <> PARA CONSEGUIR CHECAR
             if (!insideBody) {
                 int nextTagIndex = html.indexOf('<', currentTagIndex);
                 while (nextTagIndex != -1 && nextTagIndex < html.indexOf("body", currentTagIndex)) {
                     String nextTag = html.substring(nextTagIndex + 1, html.indexOf('>', nextTagIndex)).trim().split(" ")[0];
                     if (SEMANTIC_TAGS.contains(nextTag)) {
-                        return false; // Semantic tag found outside of body
+                        return false;
                     }
                     nextTagIndex = html.indexOf('<', nextTagIndex + 1);
                 }

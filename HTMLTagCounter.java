@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,8 +8,8 @@ import java.util.regex.Pattern;
 
 public class HTMLTagCounter {
     private static final Pattern TAG_PATTERN = Pattern.compile("(?<=<)\\s*([^\\s>/]+)(?=[\\s>])");
-    private static final Set<String> SEMANTIC_TAGS = new HashSet<>(Set.of(
-        "header", "nav", "main", "footer", "article", "section", "aside", "h1", "h2", "h3", "h4", "h5", "h6", "p", "div"
+    private static final Set<String> SEMANTIC_TAGS = new HashSet<>(Arrays.asList(
+            "header", "nav", "main", "footer", "article", "section", "aside", "h1", "h2", "h3", "h4", "h5", "h6", "p", "div"
     ));
 
     public Map<String, Integer> countTags(String html) {
@@ -16,7 +17,6 @@ public class HTMLTagCounter {
         Matcher matcher = TAG_PATTERN.matcher(html);
 
         boolean insideBody = false;
-
         while (matcher.find()) {
             String tag = matcher.group(1).toLowerCase();
 
