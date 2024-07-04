@@ -8,7 +8,7 @@ public class HtmlValidator {
     private static final Pattern TAG_PATTERN = Pattern.compile("<\\s*([^\\s>/!]+)([^>]*)>|<\\s*/\\s*([^\\s>/!]+)\\s*>");
     private static final Pattern DOCTYPE_PATTERN = Pattern.compile("<!DOCTYPE\\s+html\\s*>", Pattern.CASE_INSENSITIVE);
     private static final Set<String> SEMANTIC_TAGS = new HashSet<>(Arrays.asList(
-        "!doctype","html","meta","base", "br", "col","command", "embed", "hr", "img", "input", "link", "param", "source", "header", "form", "nav", "main", "footer", "article", "section", "aside", "h1", "h2", "h3", "h4", "h5", "h6", "p", "div"
+        "!DOCTYPE","html","meta","base", "br", "col","command", "embed", "hr", "img", "input", "link", "param", "source", "header", "form", "nav", "main", "footer", "article", "section", "aside", "h1", "h2", "h3", "h4", "h5", "h6", "p", "div"
     ));
 
     public ValidationResult validate(String html) {
@@ -21,11 +21,6 @@ public class HtmlValidator {
             lineNumber++;
             line = line.trim();
             if (line.isEmpty()) continue;
-    
-            // Skip DOCTYPE declaration
-            if (DOCTYPE_PATTERN.matcher(line).find()) {
-                continue;
-            }
     
             Matcher matcher = TAG_PATTERN.matcher(line);
             while (matcher.find()) {
