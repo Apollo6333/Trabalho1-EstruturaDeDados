@@ -7,9 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 public class HTMLValidatorGUI extends JFrame {
     private JTextField filePathField;
@@ -17,12 +15,13 @@ public class HTMLValidatorGUI extends JFrame {
     private JTextArea resultArea;
     private JTable tagsTable;
     private DefaultTableModel tableModel;
-    private static final Set<String> SINGLETON_TAGS = new HashSet<>(Arrays.asList(
-        "meta", "base", "br", "col", "command", "embed", "hr", "img", "input", "link", "param", "source", "!DOCTYPE"
-    ));
-    private static final Pattern TAG_PATTERN = Pattern.compile("<\\s*([^\\s>/]+)([^>]*)>");
+    private HTMLValidator validator;
+    private HTMLTagCounter tagCounter;
 
     public HTMLValidatorGUI() {
+        validator = new HTMLValidator();
+        tagCounter = new HTMLTagCounter();
+
         setTitle("Valida HTML");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,7 +36,7 @@ public class HTMLValidatorGUI extends JFrame {
         analyzeButton.setPreferredSize(buttonSize);
         analyzeButton.setMaximumSize(buttonSize);
         analyzeButton.setMinimumSize(buttonSize);
-        
+
         // Add padding to the analyze button
         analyzeButton.setBorder(new EmptyBorder(0, 0, 0, 15));
 
@@ -51,12 +50,12 @@ public class HTMLValidatorGUI extends JFrame {
         resultArea = new JTextArea();
         resultArea.setEditable(false);
 
-        String[] columnNames = {"Tag", "Número de ocorrencias"};
+        String[] columnNames = {"Tag", "Número de ocorrências"};
         tableModel = new DefaultTableModel(columnNames, 0);
         tagsTable = new JTable(tableModel);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
-        bottomPanel.add(new JLabel("Tags e suas ocorrencias:"), BorderLayout.NORTH);
+        bottomPanel.add(new JLabel("Tags e suas ocorrências:"), BorderLayout.NORTH);
         bottomPanel.add(new JScrollPane(tagsTable), BorderLayout.CENTER);
 
         add(topPanel, BorderLayout.NORTH);
@@ -74,51 +73,21 @@ public class HTMLValidatorGUI extends JFrame {
     private void analyzeFile() {
         String filePath = filePathField.getText();
         try {
-            String htmlContent = new String(Files.readAllBytes(Paths.get(filePath)));
-            validateHTML(htmlContent);
+            String hTMLContent = new String(Files.readAllBytes(Paths.get(filePath)));
+            if (validator.isValidHtml(hTMLContent)) {
+                resultArea.setText("HTML bem formatado");
+                updateTable(hTMLContent);
+            } else {
+                resultArea.setText("HTML mal formatado");
+            }
         } catch (IOException e) {
             resultArea.setText("Erro na leitura do arquivo: " + e.getMessage());
         }
     }
 
-    private void validateHTML(String htmlContent) {
-        Stack<String> stack = new Stack<>();
-        String[] lines = htmlContent.split("\n");
-        int lineNumber = 0;
-        Map<String, Integer> tagFrequency = new HashMap<>();
+    private void updateTable(String hTMLContent) {
+        Map<String, Integer> tagFrequency = tagCounter.countTags(hTMLContent);
 
-        for (String line : lines) {
-            lineNumber++;
-            Matcher matcher = TAG_PATTERN.matcher(line);
-
-            while (matcher.find()) {
-                String tag = matcher.group(1).toLowerCase();
-
-                if (SINGLETON_TAGS.contains(tag)) {
-                    tagFrequency.put(tag, tagFrequency.getOrDefault(tag, 0) + 1);
-                } else if (tag.startsWith("/")) {
-                    if (stack.isEmpty() || !stack.peek().equals(tag.substring(1))) {
-                        resultArea.setText("Erro na linha " + lineNumber + ": esperado </" + (stack.isEmpty() ? "none" : stack.peek()) + ">, found </" + tag.substring(1) + ">");
-                        return;
-                    }
-                    stack.pop();
-                } else {
-                    stack.push(tag);
-                    tagFrequency.put(tag, tagFrequency.getOrDefault(tag, 0) + 1);
-                }
-            }
-        }
-
-        if (!stack.isEmpty()) {
-            resultArea.setText("Tags faltando para: " + stack);
-            return;
-        }
-
-        resultArea.setText("HTML bem formatado");
-        updateTable(tagFrequency);
-    }
-
-    private void updateTable(Map<String, Integer> tagFrequency) {
         tableModel.setRowCount(0);
         tagFrequency.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
